@@ -110,7 +110,7 @@ try {
                         $media_files = explode(',', $project['media_url']);
                         $first_image = $media_files[0];
                     ?>
-                        <img src="<?php echo htmlspecialchars($first_image); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>" class="project-thumbnail" data-media='<?php echo json_encode($media_files); ?>'>
+                        <img src="<?php echo htmlspecialchars($first_image); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>" class="project-thumbnail" data-media='<?php echo htmlspecialchars(json_encode($media_files), ENT_QUOTES, 'UTF-8'); ?>'>
                     <?php endif; ?>
                     <p><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
                 </div>
