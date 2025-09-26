@@ -54,12 +54,17 @@ try {
                 $stmt->execute([$_POST['title'], $_POST['description'], $final_media_url, $_POST['id']]);
                 $message = "Project updated successfully!";
             } elseif (isset($_POST['delete_project'])) {
-                // Optionally, delete the associated media file from the server
+                // Handle deleting associated media files
                 $stmt = $pdo->prepare('SELECT media_url FROM projects WHERE id = ?');
                 $stmt->execute([$_POST['id']]);
-                $project = $stmt->fetch();
-                if ($project && $project['media_url'] && file_exists('../' . $project['media_url'])) {
-                    unlink('../' . $project['media_url']);
+                $project = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($project && !empty($project['media_url'])) {
+                    $media_files = explode(',', $project['media_url']);
+                    foreach ($media_files as $file) {
+                        if (file_exists('../' . trim($file))) {
+                            unlink('../' . trim($file));
+                        }
+                    }
                 }
 
                 $stmt = $pdo->prepare('DELETE FROM projects WHERE id = ?');
