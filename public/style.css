@@ -287,7 +287,7 @@ nav {
 }
 
 /* --- Projects Section --- */
-.project-grid {
+.projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
@@ -314,26 +314,87 @@ nav {
     margin-top: 0;
 }
 
+.project .project-thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.project .project-thumbnail:hover {
+    opacity: 0.8;
+}
+
 .project p {
     flex-grow: 1;
 }
 
-.project a {
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: bold;
-    background-color: transparent;
-    padding: 10px 15px;
-    border-radius: 5px;
-    text-align: center;
-    margin-top: 15px;
-    border: 1px solid var(--accent-color);
-    transition: all 0.3s ease;
+/* --- Lightbox Modal --- */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
 }
 
-.project a:hover {
-    background-color: var(--accent-color);
-    color: var(--primary-color);
+.lightbox-content {
+    position: relative;
+    margin: auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#lightbox-img {
+    max-width: 100%;
+    max-height: 80vh;
+}
+
+.close-btn, .prev-btn, .next-btn {
+    cursor: pointer;
+    position: absolute;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.close-btn:hover, .prev-btn:hover, .next-btn:hover {
+    color: #bbb;
+}
+
+.close-btn {
+    top: 15px;
+    right: 35px;
+    font-size: 40px;
+}
+
+.prev-btn, .next-btn {
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 16px;
+    user-select: none;
+}
+
+.prev-btn {
+    left: 0;
+}
+
+.next-btn {
+    right: 0;
 }
 
 /* --- Contact & Download Sections --- */

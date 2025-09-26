@@ -134,6 +134,7 @@ try {
             <div class="form-group">
                 <label for="education">Education</label>
                 <textarea id="education" name="education"><?php echo htmlspecialchars($about['education']); ?></textarea>
+                <small>Enter each qualification on a new line to display it as a list.</small>
             </div>
             <div class="form-group">
                 <label for="philosophy">Teaching Philosophy</label>
