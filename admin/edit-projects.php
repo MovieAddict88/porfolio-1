@@ -11,30 +11,47 @@ try {
 
     // Handle POST requests
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $media_url = $_POST['current_media_url'] ?? null;
+        $media_urls = [];
+        $current_media_url = $_POST['current_media_url'] ?? '';
 
-        // Handle file upload
-        if (isset($_FILES['media']) && $_FILES['media']['error'] == 0) {
+        // Handle file uploads
+        if (isset($_FILES['media']['name']) && is_array($_FILES['media']['name'])) {
             $target_dir = "../assets/projects/";
             if (!is_dir($target_dir)) {
                 mkdir($target_dir, 0755, true);
             }
-            $target_file = $target_dir . basename($_FILES["media"]["name"]);
-            if (move_uploaded_file($_FILES["media"]["tmp_name"], $target_file)) {
-                $media_url = "assets/projects/" . basename($_FILES["media"]["name"]);
+
+            foreach ($_FILES['media']['name'] as $key => $name) {
+                if ($_FILES['media']['error'][$key] == 0) {
+                    $target_file = $target_dir . basename($name);
+                    if (move_uploaded_file($_FILES['media']['tmp_name'][$key], $target_file)) {
+                        $media_urls[] = "assets/projects/" . basename($name);
+                    } else {
+                        $error = "Sorry, there was an error uploading one of your files.";
+                    }
+                }
+            }
+        }
+
+        $new_media_urls = implode(',', $media_urls);
+        $final_media_url = $current_media_url;
+
+        if (!empty($new_media_urls)) {
+            if (!empty($final_media_url)) {
+                $final_media_url .= ',' . $new_media_urls;
             } else {
-                $error = "Sorry, there was an error uploading your file.";
+                $final_media_url = $new_media_urls;
             }
         }
 
         if (empty($error)) {
             if (isset($_POST['add_project'])) {
                 $stmt = $pdo->prepare('INSERT INTO projects (title, description, media_url) VALUES (?, ?, ?)');
-                $stmt->execute([$_POST['title'], $_POST['description'], $media_url]);
+                $stmt->execute([$_POST['title'], $_POST['description'], $final_media_url]);
                 $message = "Project added successfully!";
             } elseif (isset($_POST['update_project'])) {
                 $stmt = $pdo->prepare('UPDATE projects SET title = ?, description = ?, media_url = ? WHERE id = ?');
-                $stmt->execute([$_POST['title'], $_POST['description'], $media_url, $_POST['id']]);
+                $stmt->execute([$_POST['title'], $_POST['description'], $final_media_url, $_POST['id']]);
                 $message = "Project updated successfully!";
             } elseif (isset($_POST['delete_project'])) {
                 // Optionally, delete the associated media file from the server
@@ -128,7 +145,7 @@ try {
             </div>
             <div class="form-group">
                 <label>Media (Image or Video)</label>
-                <input type="file" name="media">
+                <input type="file" name="media[]" multiple>
             </div>
             <button type="submit" name="add_project">Add Project</button>
         </form>
@@ -157,7 +174,7 @@ try {
                             <?php if ($project['media_url']): ?>
                                 <a href="../<?php echo htmlspecialchars($project['media_url']); ?>" target="_blank">View Media</a><br>
                             <?php endif; ?>
-                            <input type="file" name="media">
+                            <input type="file" name="media[]" multiple>
                         </td>
                         <td>
                             <button type="submit" name="update_project">Update</button>

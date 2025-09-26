@@ -54,7 +54,20 @@ try {
             <?php endif; ?>
             <p><?php echo nl2br(htmlspecialchars($about['bio'] ?? '')); ?></p>
             <h3>Education</h3>
-            <p><?php echo htmlspecialchars($about['education'] ?? ''); ?></p>
+            <?php
+            if (!empty($about['education'])) {
+                $education_items = explode("\n", trim($about['education']));
+                if (!empty($education_items)) {
+                    echo '<ul class="education-list">';
+                    foreach ($education_items as $item) {
+                        if (!empty(trim($item))) {
+                            echo '<li>' . htmlspecialchars(trim($item)) . '</li>';
+                        }
+                    }
+                    echo '</ul>';
+                }
+            }
+            ?>
             <h3>My Philosophy</h3>
             <p><?php echo htmlspecialchars($about['philosophy'] ?? ''); ?></p>
         </section>
@@ -89,16 +102,31 @@ try {
         <!-- Projects Section -->
         <section id="projects" class="section">
             <h2>Projects</h2>
-            <?php foreach ($projects as $project): ?>
-            <div class="project">
-                <h3><?php echo htmlspecialchars($project['title']); ?></h3>
-                <p><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
-                <?php if (!empty($project['media_url'])): ?>
-                    <a href="<?php echo htmlspecialchars($project['media_url']); ?>" target="_blank">View Media</a>
-                <?php endif; ?>
+            <div class="projects-grid">
+                <?php foreach ($projects as $project): ?>
+                <div class="project">
+                    <h3><?php echo htmlspecialchars($project['title']); ?></h3>
+                    <?php if (!empty($project['media_url'])):
+                        $media_files = explode(',', $project['media_url']);
+                        $first_image = $media_files[0];
+                    ?>
+                        <img src="<?php echo htmlspecialchars($first_image); ?>" alt="<?php echo htmlspecialchars($project['title']); ?>" class="project-thumbnail" data-media='<?php echo json_encode($media_files); ?>'>
+                    <?php endif; ?>
+                    <p><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
+                </div>
+                <?php endforeach; ?>
             </div>
-            <?php endforeach; ?>
         </section>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox-modal" class="lightbox">
+            <span class="close-btn">&times;</span>
+            <div class="lightbox-content">
+                <img id="lightbox-img" src="">
+                <a class="prev-btn">&#10094;</a>
+                <a class="next-btn">&#10095;</a>
+            </div>
+        </div>
 
         <!-- Contact Section -->
         <section id="contact" class="section">
@@ -124,5 +152,52 @@ try {
         <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($about['name'] ?? 'Portfolio'); ?>. All Rights Reserved.</p>
     </footer>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('lightbox-modal');
+            const modalImg = document.getElementById('lightbox-img');
+            const closeBtn = modal.querySelector('.close-btn');
+            const prevBtn = modal.querySelector('.prev-btn');
+            const nextBtn = modal.querySelector('.next-btn');
+
+            let currentMedia = [];
+            let currentIndex = 0;
+
+            document.querySelectorAll('.project-thumbnail').forEach(item => {
+                item.addEventListener('click', event => {
+                    currentMedia = JSON.parse(event.target.dataset.media);
+                    currentIndex = 0;
+                    updateLightbox();
+                    modal.style.display = 'block';
+                });
+            });
+
+            function updateLightbox() {
+                modalImg.src = currentMedia[currentIndex];
+                prevBtn.style.display = currentMedia.length > 1 ? 'block' : 'none';
+                nextBtn.style.display = currentMedia.length > 1 ? 'block' : 'none';
+            }
+
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            prevBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + currentMedia.length) % currentMedia.length;
+                updateLightbox();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % currentMedia.length;
+                updateLightbox();
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
